@@ -63,16 +63,28 @@ const Navbar = () => {
       {/* Render the menu based on the 'active' state */}
       {active && (
         <Menu theme="dark">
-          <Menu.Item icon={<HomeOutlined />}>
+          <Menu.Item
+            icon={<HomeOutlined />}
+            onClick={() => setActive((prev) => !prev)}
+          >
             <Link to="/">Home</Link>
           </Menu.Item>
-          <Menu.Item icon={<FundOutlined />}>
+          <Menu.Item
+            icon={<FundOutlined />}
+            onClick={() => setActive((prev) => !prev)}
+          >
             <Link to="/cryptocurrencies">Cryptocurrencies</Link>
           </Menu.Item>
-          <Menu.Item icon={<BulbOutlined />}>
+          <Menu.Item
+            icon={<BulbOutlined />}
+            onClick={() => setActive((prev) => !prev)}
+          >
             <Link to="/news">News</Link>
           </Menu.Item>
-          <Menu.Item icon={<FaSignOutAlt />}>
+          <Menu.Item
+            icon={<FaSignOutAlt />}
+            onClick={() => setActive((prev) => !prev)}
+          >
             {/* Add a sign-out functionality */}
             <span
               onClick={() => {
