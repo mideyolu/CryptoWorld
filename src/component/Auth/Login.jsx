@@ -1,0 +1,93 @@
+// src/components/Auth/Login.jsx
+import { useRef, useState, useEffect } from "react";
+import { auth } from "../../firebase/firebase";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import Loader from "../Loader/Loader";
+import logo from "../../assets/img/cryptocurrency.png";
+
+const Login = () => {
+    const emailRef = useRef(null);
+    const passRef = useRef(null);
+
+    const [user, setUser] = useState(null);
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const navigate = useNavigate();
+
+    const clearErrors = () => {
+        setEmailError("");
+        setPasswordError("");
+    };
+
+    const handleAuthError = (error) => {
+        switch (error.code) {
+            case "auth/invalid-email":
+                setEmailError("Invalid email address");
+                break;
+            case "auth/user-not-found":
+                setEmailError("Email does not exist");
+                break;
+            case "auth/wrong-password":
+                setPasswordError("Incorrect password");
+                break;
+            default:
+                console.error(error.message);
+        }
+    };
+
+    const handleSignIn = async (e) => {
+        e.preventDefault();
+        clearErrors();
+        const email = emailRef.current.value;
+        const password = passRef.current.value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            navigate("/home");
+        } catch (error) {
+            handleAuthError(error);
+        }
+    };
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+            setUser(authUser || null);
+        });
+        return () => unsubscribe();
+    }, []);
+
+    return (
+        <>
+            {user && <Loader />}
+            <form className="form-box" onSubmit={handleSignIn}>
+                <div className="form">
+                    <img src={logo} alt="logo" className="logo-img" />
+                    <span className="title">Crypto World</span>
+                    <span className="subtitle">Log in to your account.</span>
+                    <div className="form-container">
+                        <input
+                            ref={emailRef}
+                            type="email"
+                            placeholder="Email"
+                            className="input"
+                        />
+                        {emailError && <p className="error">{emailError}</p>}
+                        <input
+                            ref={passRef}
+                            type="password"
+                            placeholder="Password"
+                            className="input"
+                        />
+                        {passwordError && (
+                            <p className="error">{passwordError}</p>
+                        )}
+                    </div>
+                    <button type="submit">Log In</button>
+                </div>
+            </form>
+        </>
+    );
+};
+
+export default Login;
