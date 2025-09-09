@@ -351,3 +351,89 @@ a:hover {
     padding: 20px;
     align-items: center;
 }
+
+
+/* Auth Form Styles */
+.form-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bgSecondary);
+    padding: 20px;
+}
+
+.form {
+    background-color: rgb(0, 21, 41);
+    padding: 60px 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.logo-img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 15px;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--pink);
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--bgSecondary);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.form-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.input:focus {
+    border-color: var(--pink);
+    outline: none;
+}
+
+.error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: -10px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--pink);
+    color: #fff;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background-color: #005fa3;
+}
