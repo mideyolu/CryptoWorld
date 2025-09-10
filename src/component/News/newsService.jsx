@@ -1,34 +1,19 @@
 import { useEffect, useState } from "react";
 import { useGetCryptoNewsQuery } from "../../services/cryptoNewsApi";
 
-// 24 hours in milliseconds
-const CACHE_DURATION = 24 * 60 * 60 * 1000;
-
-/**
- * Check if cached timestamp is expired
- */
-export const isCacheExpired = (timestamp) =>
-  !timestamp || Date.now() - timestamp > CACHE_DURATION;
-
 /**
  * Get cached articles from localStorage
  */
-export const getCachedArticles = (storageKey, storageTimeKey) => {
+export const getCachedArticles = (storageKey) => {
   const cached = localStorage.getItem(storageKey);
-  const cachedTime = localStorage.getItem(storageTimeKey);
-
-  if (cached && !isCacheExpired(Number(cachedTime))) {
-    return JSON.parse(cached);
-  }
-  return null;
+  return cached ? JSON.parse(cached) : null;
 };
 
 /**
  * Save articles to localStorage
  */
-export const saveArticlesToCache = (storageKey, storageTimeKey, articles) => {
+export const saveArticlesToCache = (storageKey, articles) => {
   localStorage.setItem(storageKey, JSON.stringify(articles));
-  localStorage.setItem(storageTimeKey, Date.now().toString());
 };
 
 /**
@@ -39,15 +24,12 @@ export const useFetchCryptoNews = (newsCategory, simplified = false) => {
   const storageKey = simplified
     ? `cryptoNewsSimplified_${newsCategory}`
     : `cryptoNewsFull_${newsCategory}`;
-  const storageTimeKey = simplified
-    ? `cryptoNewsSimplifiedTime_${newsCategory}`
-    : `cryptoNewsFullTime_${newsCategory}`;
 
   // Check cache first
-  const cached = getCachedArticles(storageKey, storageTimeKey);
+  const cached = getCachedArticles(storageKey);
   const [articles, setArticles] = useState(cached || []);
 
-  // Only fetch if cache is empty/expired
+  // Only fetch if there's no cached data at all
   const shouldFetch = !cached;
   const {
     data: fetchedArticles,
@@ -57,13 +39,13 @@ export const useFetchCryptoNews = (newsCategory, simplified = false) => {
     { skip: !shouldFetch } 
   );
 
-  // Update state & cache when new data is fetched
+  // Save to cache when new data arrives
   useEffect(() => {
     if (fetchedArticles?.length > 0) {
       setArticles(fetchedArticles);
-      saveArticlesToCache(storageKey, storageTimeKey, fetchedArticles);
+      saveArticlesToCache(storageKey, fetchedArticles);
     }
-  }, [fetchedArticles, storageKey, storageTimeKey]);
+  }, [fetchedArticles, storageKey]);
 
   return { articles, isFetching: shouldFetch ? isFetching : false };
 };
