@@ -1,51 +1,49 @@
+// src/components/News/newsService.js
 import { useEffect, useState } from "react";
-import { useGetCryptoNewsQuery } from "../../services/cryptoNewsApi";
+import { useGetCryptosQuery } from "../../services/cryptoApi";
 
-/**
- * Get cached articles from localStorage
- */
 export const getCachedArticles = (storageKey) => {
-  const cached = localStorage.getItem(storageKey);
-  return cached ? JSON.parse(cached) : null;
+    const cached = localStorage.getItem(storageKey);
+    return cached ? JSON.parse(cached) : null;
 };
 
-/**
- * Save articles to localStorage
- */
 export const saveArticlesToCache = (storageKey, articles) => {
-  localStorage.setItem(storageKey, JSON.stringify(articles));
+    localStorage.setItem(storageKey, JSON.stringify(articles));
 };
 
-/**
- * Custom hook to handle fetching & caching
- */
-export const useFetchCryptoNews = (newsCategory, simplified = false) => {
-  const pageSize = simplified ? 9 : 50;
-  const storageKey = simplified
-    ? `cryptoNewsSimplified_${newsCategory}`
-    : `cryptoNewsFull_${newsCategory}`;
+// Fetch "news" = details+history+links for ALL coins
+export const useFetchCryptoNews = (simplified = false) => {
+    const count = simplified ? 9 : 60;
+    const storageKey = simplified ? "cryptoNewsSimplified" : "cryptoNewsFull";
 
-  // Check cache first
-  const cached = getCachedArticles(storageKey);
-  const [articles, setArticles] = useState(cached || []);
+    const cached = getCachedArticles(storageKey);
+    const [articles, setArticles] = useState(cached || []);
 
-  // Only fetch if there's no cached data at all
-  const shouldFetch = !cached;
-  const {
-    data: fetchedArticles,
-    isFetching,
-  } = useGetCryptoNewsQuery(
-    { keyword: newsCategory, pageSize },
-    { skip: !shouldFetch } 
-  );
+    const { data, isFetching, error } = useGetCryptosQuery(count);
 
-  // Save to cache when new data arrives
-  useEffect(() => {
-    if (fetchedArticles?.length > 0) {
-      setArticles(fetchedArticles);
-      saveArticlesToCache(storageKey, fetchedArticles);
-    }
-  }, [fetchedArticles, storageKey]);
+    useEffect(() => {
+        console.log("📡 Raw crypto data:", data);
+        console.log("⚠️ Any error?:", error);
 
-  return { articles, isFetching: shouldFetch ? isFetching : false };
+        if (data?.data?.coins) {
+            // transform coins into "news-like" articles
+            const transformed = data.data.coins.map((coin) => ({
+                title: `${coin.name} (${coin.symbol})`,
+                description:
+                    coin.description ||
+                    `Latest stats and links for ${coin.name}`,
+                link: coin.coinrankingUrl,
+                imgUrl: coin.iconUrl,
+                source: { name: coin.name, icon: coin.iconUrl },
+                publishedAt: coin.listedAt
+                    ? new Date(coin.listedAt * 1000)
+                    : null,
+            }));
+
+            setArticles(transformed);
+            saveArticlesToCache(storageKey, transformed);
+        }
+    }, [data, error, storageKey]);
+
+    return { articles, isFetching };
 };
