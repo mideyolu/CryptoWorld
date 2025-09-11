@@ -80,7 +80,7 @@ const HomePage = () => {
       {/* Latest CryptoCurrencies News */}
       <div className="home-heading-container">
         <Title level={3} className="home-title">
-          Latest CryptoCurrencies News.
+          CryptoCurrencies News.
         </Title>
         <Title level={3} className="show-more">
           <Link to="/news">Show More</Link>
